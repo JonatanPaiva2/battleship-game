@@ -24,43 +24,49 @@ class Tabuleiro:
         
     def posicionar_navio(self, orientacao, tamanho_navio, linha, coluna):
         linha = int(linha)
+
         if (
             (orientacao == "h" and coluna + tamanho_navio > len(self.tabuleiro[0])) or
             (orientacao == "v" and linha + tamanho_navio > len(self.tabuleiro))
         ):
             print("O navio não cabe no tabuleiro")
             print("")
-            return
-        
+            raise ValueError("Posição indisponível. Tentando novamente.")
+
         partes_navio = []
-        if orientacao == "h":
-            for i in range(coluna, coluna + tamanho_navio):
-                if self.tabuleiro[linha - 1][i] != '_':
-                    print("Já há uma peça aqui")
-                    print("")
-                    return
-            
-            for i in range(coluna, coluna + tamanho_navio):
-                partes_navio.append((linha - 1, i))
-                self.tabuleiro[linha - 1][i] = 'O'
-                    
-        elif orientacao == "v":
-            for i in range(linha, linha + tamanho_navio):
-                if self.tabuleiro[i - 1][coluna] != '_':
-                    print("Já há uma peça aqui")
-                    print("")
-                    return 
-            
-            for i in range(linha, linha + tamanho_navio):
-                partes_navio.append((i - 1, coluna))
-                self.tabuleiro[i - 1][coluna] = 'O'
-            
-        # Armazenar informações sobre o navio
-        self.navios.append({'tamanho': tamanho_navio, 'partes': partes_navio})
+        try:
+            if orientacao == "h":
+                for i in range(coluna, coluna + tamanho_navio):
+                    if self.tabuleiro[linha - 1][i] != '_':
+                        print("Já há uma peça aqui")
+                        print("")
+                        raise ValueError("Posição indisponível. Tentando novamente")
+
+                for i in range(coluna, coluna + tamanho_navio):
+                    partes_navio.append((linha - 1, i))
+                    self.tabuleiro[linha - 1][i] = 'O'
+
+            elif orientacao == "v":
+                for i in range(linha, linha + tamanho_navio):
+                    if self.tabuleiro[i - 1][coluna] != '_':
+                        print("Já há uma peça aqui")
+                        print("")
+                        raise ValueError("Posição indisponível. Tentando novamente")
+
+                for i in range(linha, linha + tamanho_navio):
+                    partes_navio.append((i - 1, coluna))
+                    self.tabuleiro[i - 1][coluna] = 'O'
+
+            # Armazenar informações sobre o navio
+            self.navios.append({'tamanho': tamanho_navio, 'partes': partes_navio})
+
+        except ValueError:
+            # Se ocorrer um erro, levante a exceção para reiniciar o posicionamento do navio
+            raise ValueError("Posição indisponível. Tentando novamente.")
         
     def posicionar_navio_aleatorio(self, tamanho_navio):
         orientacao = random.choice(["h", "v"])
-        
+
         while True:
             try:
                 if orientacao == "h":
@@ -70,10 +76,12 @@ class Tabuleiro:
                     linha = random.randint(1, len(self.tabuleiro) - tamanho_navio + 1)
                     coluna = random.randint(1, len(self.tabuleiro[0]))
 
-                self.posicionar_navio(orientacao, tamanho_navio, linha, coluna)
-                break
+                if self.verificar_posicao_disponivel(orientacao, tamanho_navio, linha, coluna):
+                    # Se a posição estiver disponível, posicione o navio e saia do loop
+                    self.posicionar_navio(orientacao, tamanho_navio, linha, coluna)
+                    break
             except (ValueError, IndexError):
-                # Se ocorrer um erro ao posicionar o navio, tentar novamente com uma nova orientação
+                # Se ocorrer um erro, tente novamente com uma nova orientação
                 orientacao = random.choice(["h", "v"])
 
     def verificar_posicao_disponivel(self, orientacao, tamanho_navio, linha, coluna):
@@ -135,9 +143,9 @@ def play_battleship():
     tabuleiro = Tabuleiro()
     #tabuleiro.exibir_tabuleiro()
     
-    navios_predefinidos = [(3, 2), (4, 1), (5, 1)]
+    navios_predefinidos = [(2, 1), (3, 2), (4, 1), (5, 1)]
     
-    '''
+    #Jogador
     for tamanho_navio, quantidade in navios_predefinidos:
         for i in range (quantidade):
             #tamanho_navio = int(input("Escolha o tamanho do navio: "))
@@ -147,12 +155,15 @@ def play_battleship():
             coluna = ord(posicao[0].upper()) - ord('A')
             tabuleiro.posicionar_navio(orientacao, tamanho_navio, linha, coluna)
             tabuleiro.exibir_tabuleiro()
-    '''
+    
+    #Computador
     for tamanho_navio, quantidade in navios_predefinidos:
         for i in range(quantidade):
             tabuleiro.posicionar_navio_aleatorio(tamanho_navio)
     
     #JOGO
+    print("O computador já posicionou os navios.")
+    print("")
     while not tabuleiro.verificar_fim_de_jogo():
         try:
             tabuleiro.exibir_tabuleiro_oculto()  # Exibir o tabuleiro oculto
@@ -160,7 +171,6 @@ def play_battleship():
             linha = int(jogada[1:]) - 1
             coluna = ord(jogada[0].upper()) - ord('A')
             tabuleiro.acertou_ou_errou(linha, coluna)
-            tabuleiro.exibir_tabuleiro()
         except (ValueError, IndexError):
             print("Por favor, digite uma posição válida.")
             print("")
