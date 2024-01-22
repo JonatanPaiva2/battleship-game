@@ -5,7 +5,8 @@ class Tabuleiro:
         self.tabuleiro = [['_' for _ in range(10)] for _ in range(10)]
         self.tabuleiro_oculto = [['_' for _ in range(10)] for _ in range(10)]
         self.navios = []  # Lista para armazenar informações sobre os navios
-        
+        self.memoria = []  # Memória para armazenar partes atingidas pelo computador
+
     def exibir_tabuleiro(self):
         print("  A B C D E F G H I J")
         i = 1
@@ -13,7 +14,7 @@ class Tabuleiro:
             print(f"{i} {' '.join(linha)}")
             i += 1
         print("")
-            
+
     def exibir_tabuleiro_oculto(self):
         print("  A B C D E F G H I J")
         i = 1
@@ -21,10 +22,10 @@ class Tabuleiro:
             print(f"{i} {' '.join(linha)}")
             i += 1
         print("")
-        
+
     def posicionar_navio(self, orientacao, tamanho_navio, linha, coluna):
         partes_navio = []
-        
+
         if orientacao == "h":
             for i in range(coluna, coluna + tamanho_navio):
                 partes_navio.append((linha - 1, i))
@@ -34,11 +35,10 @@ class Tabuleiro:
             for i in range(linha, linha + tamanho_navio):
                 partes_navio.append((i - 1, coluna))
                 self.tabuleiro[i - 1][coluna] = 'O'
-        
+
         # Armazenar informações sobre o navio
         self.navios.append({'tamanho': tamanho_navio, 'partes': partes_navio})
-        
-        
+
     def posicionar_navio_aleatorio(self, tamanho_navio):
         orientacao = random.choice(["h", "v"])
 
@@ -58,7 +58,6 @@ class Tabuleiro:
             except (ValueError, IndexError):
                 # Se ocorrer um erro, tente novamente com uma nova orientação
                 orientacao = random.choice(["h", "v"])
-
 
     def verificar_posicao_disponivel(self, orientacao, tamanho_navio, linha, coluna):
         linha = int(linha)
@@ -80,11 +79,10 @@ class Tabuleiro:
                     print("Já há uma peça aqui")
                     return False
         else:
-            print("A orientação não é valida")
+            print("A orientação não é válida")
             return False
         return True
 
-    
     def acertou_ou_errou(self, linha, coluna):
         if self.tabuleiro[linha][coluna] == 'O':
             print("Parabéns! Você acertou um navio.")
@@ -108,38 +106,88 @@ class Tabuleiro:
             self.tabuleiro[linha][coluna] = '*'
         return False
 
-
     def verificar_se_afundou(self, linha, coluna):
-            for navio in self.navios:
-                if (linha, coluna) in navio['partes']:
-                    navio['partes'].remove((linha, coluna))
-                    if not navio['partes']:
-                        print(f"Você afundou um navio de tamanho {navio['tamanho']}!")
-                        print("")
-                        self.navios.remove(navio)
-                        break
-                    
+        for navio in self.navios:
+            if (linha, coluna) in navio['partes']:
+                navio['partes'].remove((linha, coluna))
+                if not navio['partes']:
+                    print(f"Você afundou um navio de tamanho {navio['tamanho']}!")
+                    print("")
+                    self.navios.remove(navio)
+                    break
+
     def verificar_fim_de_jogo(self):
         return not bool(self.navios)
 
 
-   ################################################ 
-    
+def jogada_computador(tabuleiro_jogador):
+    if len(tabuleiro_jogador.memoria) > 0:
+        # Se a memória não estiver vazia, o computador tem partes atingidas para tentar encontrar o navio
+        print ("Entrando na memória que não está vazia")
+        linha = tabuleiro_jogador.memoria[0]['linha']
+        coluna = tabuleiro_jogador.memoria[0]['coluna']
+        print (linha)
+        print (coluna)
+        tentar_encontrar_navio(tabuleiro_jogador, linha, coluna)
+    else:
+        # Caso contrário, atirar aleatoriamente
+        jogada_aleatoria(tabuleiro_jogador)
+
+
+def tentar_encontrar_navio(tabuleiro_jogador, linha, coluna):
+    direcoes_possiveis = ["acima", "abaixo", "esquerda", "direita"]
+    random.shuffle(direcoes_possiveis)
+    linha = int(linha)
+    coluna = int(coluna)
+
+    for direcao in direcoes_possiveis:
+        if direcao == "acima" and linha > 0:
+            linha -= 1
+        elif direcao == "abaixo" and linha < 9:
+            linha += 1
+        elif direcao == "esquerda" and coluna > 0:
+            coluna -= 1
+        elif direcao == "direita" and coluna < 9:
+            coluna += 1
+
+        if not tabuleiro_jogador.tabuleiro[linha][coluna] in ['X', '*']:
+            # Se a posição não foi atacada anteriormente, realizar a jogada
+            tabuleiro_jogador.acertou_ou_errou(linha, coluna)
+            break
+
+
+def jogada_aleatoria(tabuleiro_jogador):
+    while True:
+            try:
+                linha_computador = random.randint(0, 9)
+                coluna_computador = random.randint(0, 9)
+                
+                if tabuleiro_jogador.tabuleiro[linha_computador][coluna_computador] == 'O':
+                    tabuleiro_jogador.memoria.append({'linha': linha_computador, 'coluna': coluna_computador})
+                    print (tabuleiro_jogador.memoria)
+                
+                if tabuleiro_jogador.acertou_ou_errou(linha_computador, coluna_computador):
+                    break
+            except (ValueError, IndexError):
+                continue
+        
+
+
 def play_battleship():
     print("Bem-vindo ao jogo Batalha Naval!")
     print("")
-    
-    #PREPARAÇÃO
-    tabuleiro = Tabuleiro()
+
+    # PREPARAÇÃO
+    tabuleiro_jogador = Tabuleiro()
     tabuleiro_computador = Tabuleiro()
-    tabuleiro.exibir_tabuleiro()
-    
-    navios_predefinidos = [(3, 2), (4, 1), (5, 1)]
-    
-    #Jogador
+    tabuleiro_jogador.exibir_tabuleiro()
+
+    navios_predefinidos = [(3, 1), (4, 1), (5, 1)]
+
+    # Jogador
     print("Posicione seus navios:")
     for tamanho_navio, quantidade in navios_predefinidos:
-        for i in range (quantidade):
+        for i in range(quantidade):
             while True:
                 try:
                     orientacao = input(f"Digite a orientação para colocar o navio de tamanho {tamanho_navio} (h/v): ")
@@ -147,40 +195,52 @@ def play_battleship():
                     linha = int(posicao[1:])
                     coluna = ord(posicao[0].upper()) - ord('A')
 
-                    if tabuleiro.verificar_posicao_disponivel(orientacao, tamanho_navio, linha, coluna):
-                        tabuleiro.posicionar_navio(orientacao, tamanho_navio, linha, coluna)
-                        tabuleiro.exibir_tabuleiro()
+                    if tabuleiro_jogador.verificar_posicao_disponivel(orientacao, tamanho_navio, linha, coluna):
+                        tabuleiro_jogador.posicionar_navio(orientacao, tamanho_navio, linha, coluna)
+                        tabuleiro_jogador.exibir_tabuleiro()
                         break
                     else:
                         print("Posição indisponível. Tente novamente.")
                 except (ValueError, IndexError):
                     print("Entrada inválida. Certifique-se de seguir o formato correto.")
-                    
-    tabuleiro.exibir_tabuleiro()
-        
-    #Computador
+
+    tabuleiro_jogador.exibir_tabuleiro()
+
+    # Computador
     print("O computador está posicionando os navios...")
     for tamanho_navio, quantidade in navios_predefinidos:
         for i in range(quantidade):
             tabuleiro_computador.posicionar_navio_aleatorio(tamanho_navio)
     print("O computador já posicionou os navios.")
     print("")
-    
-    #JOGO
-    while not (tabuleiro.verificar_fim_de_jogo() or tabuleiro_computador.verificar_fim_de_jogo()):
+
+    # JOGO
+    while not (tabuleiro_jogador.verificar_fim_de_jogo() or tabuleiro_computador.verificar_fim_de_jogo()):
+        # Jogada do jogador
         try:
             tabuleiro_computador.exibir_tabuleiro_oculto()  # Exibir o tabuleiro oculto
-            jogada = input("Digite a posição para atacar (letra/número):h ").lower()
-            linha = int(jogada[1:]) - 1
-            coluna = ord(jogada[0].upper()) - ord('A')
-            tabuleiro_computador.acertou_ou_errou(linha, coluna)
+            jogada_jogador = input("Digite a posição para atacar (letra/número): ").lower()
+            linha_jogador = int(jogada_jogador[1:]) - 1
+            coluna_jogador = ord(jogada_jogador[0].upper()) - ord('A')
+            tabuleiro_computador.acertou_ou_errou(linha_jogador, coluna_jogador)
         except (ValueError, IndexError):
             print("Por favor, digite uma posição válida.")
             print("")
 
-    tabuleiro_computador.exibir_tabuleiro_oculto()
-    print("Parabéns! Você derrubou todos os navios!")
-    
-#####################
+        # Verificar se o jogador venceu após sua jogada
+        if tabuleiro_computador.verificar_fim_de_jogo():
+            print("Parabéns! Você derrubou todos os navios do computador!")
+            break
 
+        # Jogada do computador
+        jogada_computador(tabuleiro_jogador)
+        tabuleiro_jogador.exibir_tabuleiro()
+        
+        # Verificar se o jogador venceu após sua jogada
+        if tabuleiro_jogador.verificar_fim_de_jogo():
+            print("Você perdeu! O computador afundou todos os seus navios.")
+            break
+
+
+# Executar o jogo
 play_battleship()
