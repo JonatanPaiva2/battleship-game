@@ -12,6 +12,7 @@ class Tabuleiro:
         for linha in self.tabuleiro:
             print(f"{i} {' '.join(linha)}")
             i += 1
+        print("")
             
     def exibir_tabuleiro_oculto(self):
         print("  A B C D E F G H I J")
@@ -19,6 +20,7 @@ class Tabuleiro:
         for linha in self.tabuleiro_oculto:
             print(f"{i} {' '.join(linha)}")
             i += 1
+        print("")
         
     def posicionar_navio(self, orientacao, tamanho_navio, linha, coluna):
         linha = int(linha)
@@ -27,6 +29,7 @@ class Tabuleiro:
             (orientacao == "v" and linha + tamanho_navio > len(self.tabuleiro))
         ):
             print("O navio não cabe no tabuleiro")
+            print("")
             return
         
         partes_navio = []
@@ -34,6 +37,7 @@ class Tabuleiro:
             for i in range(coluna, coluna + tamanho_navio):
                 if self.tabuleiro[linha - 1][i] != '_':
                     print("Já há uma peça aqui")
+                    print("")
                     return
             
             for i in range(coluna, coluna + tamanho_navio):
@@ -44,6 +48,7 @@ class Tabuleiro:
             for i in range(linha, linha + tamanho_navio):
                 if self.tabuleiro[i - 1][coluna] != '_':
                     print("Já há uma peça aqui")
+                    print("")
                     return 
             
             for i in range(linha, linha + tamanho_navio):
@@ -55,17 +60,21 @@ class Tabuleiro:
         
     def posicionar_navio_aleatorio(self, tamanho_navio):
         orientacao = random.choice(["h", "v"])
-        if orientacao == "h":
-            linha = random.randint(1, len(self.tabuleiro))
-            coluna = random.randint(1, len(self.tabuleiro[0]) - tamanho_navio + 1)
-        else:
-            linha = random.randint(1, len(self.tabuleiro) - tamanho_navio + 1)
-            coluna = random.randint(1, len(self.tabuleiro[0]))
+        
+        while True:
+            try:
+                if orientacao == "h":
+                    linha = random.randint(1, len(self.tabuleiro))
+                    coluna = random.randint(1, len(self.tabuleiro[0]) - tamanho_navio + 1)
+                else:
+                    linha = random.randint(1, len(self.tabuleiro) - tamanho_navio + 1)
+                    coluna = random.randint(1, len(self.tabuleiro[0]))
 
-        if not self.verificar_posicao_disponivel(orientacao, tamanho_navio, linha, coluna):
-            return self.posicionar_navio_aleatorio(tamanho_navio)
-        else:
-            self.posicionar_navio(orientacao, tamanho_navio, linha, coluna)
+                self.posicionar_navio(orientacao, tamanho_navio, linha, coluna)
+                break
+            except (ValueError, IndexError):
+                # Se ocorrer um erro ao posicionar o navio, tentar novamente com uma nova orientação
+                orientacao = random.choice(["h", "v"])
 
     def verificar_posicao_disponivel(self, orientacao, tamanho_navio, linha, coluna):
         if orientacao == "h":
@@ -82,19 +91,23 @@ class Tabuleiro:
     def acertou_ou_errou(self, linha, coluna):
         if self.tabuleiro[linha][coluna] == 'O':
             print("Parabéns! Você acertou um navio.")
+            print("")
             self.tabuleiro_oculto[linha][coluna] = '*'
             self.tabuleiro[linha][coluna] = '*'
             self.verificar_se_afundou(linha, coluna)
             return True
         elif self.tabuleiro[linha][coluna] == '_':
             print("Você acertou a água.")
+            print("")
             self.tabuleiro_oculto[linha][coluna] = 'X'
             self.tabuleiro[linha][coluna] = 'X'
             return True
         elif self.tabuleiro[linha][coluna] == 'X' or self.tabuleiro[linha][coluna] == '*':
             print("Você já tentou essa posição. Tente novamente.")
+            print("")
         else:
             print("Você errou. Tente novamente.")
+            print("")
             self.tabuleiro[linha][coluna] = '*'
         return False
 
@@ -104,6 +117,7 @@ class Tabuleiro:
                     navio['partes'].remove((linha, coluna))
                     if not navio['partes']:
                         print(f"Você afundou um navio de tamanho {navio['tamanho']}!")
+                        print("")
                         self.navios.remove(navio)
                         break
                     
@@ -115,10 +129,11 @@ class Tabuleiro:
     
 def play_battleship():
     print("Bem-vindo ao jogo Batalha Naval!")
+    print("")
     
     #PREPARAÇÃO
     tabuleiro = Tabuleiro()
-    tabuleiro.exibir_tabuleiro()
+    #tabuleiro.exibir_tabuleiro()
     
     navios_predefinidos = [(3, 2), (4, 1), (5, 1)]
     
@@ -139,11 +154,16 @@ def play_battleship():
     
     #JOGO
     while not tabuleiro.verificar_fim_de_jogo():
-        tabuleiro.exibir_tabuleiro_oculto()  # Exibir o tabuleiro oculto
-        jogada = input("Digite a posição para atacar (letra/número): ").lower()
-        linha = int(jogada[1:]) - 1
-        coluna = ord(jogada[0].upper()) - ord('A')
-        tabuleiro.acertou_ou_errou(linha, coluna)
+        try:
+            tabuleiro.exibir_tabuleiro_oculto()  # Exibir o tabuleiro oculto
+            jogada = input("Digite a posição para atacar (letra/número): ").lower()
+            linha = int(jogada[1:]) - 1
+            coluna = ord(jogada[0].upper()) - ord('A')
+            tabuleiro.acertou_ou_errou(linha, coluna)
+            tabuleiro.exibir_tabuleiro()
+        except (ValueError, IndexError):
+            print("Por favor, digite uma posição válida.")
+            print("")
 
     tabuleiro.exibir_tabuleiro_oculto()
     print("Parabéns! Você derrubou todos os navios!")
