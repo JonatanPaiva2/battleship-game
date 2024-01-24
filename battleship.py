@@ -220,22 +220,11 @@ def verificar_orientacao_memoria(tabuleiro_jogador):
         linha_vazia = encontrar_proxima_posicao_vazia(tabuleiro_jogador, linha1, coluna1, direcao='vertical')
         tabuleiro_jogador.acertou_ou_errou(linha_vazia, coluna1)
 
-      
 ##################################################
 
-def play_battleship():
-    print("Bem-vindo ao jogo Batalha Naval!")
-    print("")
-
-    # PREPARAÇÃO
-    tabuleiro_jogador = Tabuleiro()
-    tabuleiro_computador = Tabuleiro()
-    tabuleiro_jogador.exibir_tabuleiro()
-
-    navios_predefinidos = [(3, 1), (4, 1), (5, 1)]
-
+def criacao_tabuleiro_jogador(tabuleiro_jogador, navios_predefinidos):
     # Jogador
-    print("Posicione seus navios:")
+    print("Jogador, posicione seus navios:")
     for tamanho_navio, quantidade in navios_predefinidos:
         for i in range(quantidade):
             while True:
@@ -257,6 +246,7 @@ def play_battleship():
 
     tabuleiro_jogador.exibir_tabuleiro()
 
+def criacao_tabuleiro_computador(tabuleiro_computador, navios_predefinidos):
     # Computador
     print("O computador está posicionando os navios...")
     tabuleiro_computador.exibir_erros_jogador = False
@@ -266,6 +256,94 @@ def play_battleship():
     print("O computador já posicionou os navios.")
     print("")
 
+
+def jogada_jogador(tabuleiro_jogador):
+    tabuleiro_jogador.exibir_tabuleiro_oculto()
+    while True:
+        try:
+            jogada = input("Digite a posição para atacar (letra/número): ").lower()
+            linha = int(jogada[1:]) - 1
+            coluna = ord(jogada[0].upper()) - ord('A')
+
+            if tabuleiro_jogador.acertou_ou_errou(linha, coluna):
+                break
+            else:
+                print("Posição inválida. Tente novamente.")
+        except (ValueError, IndexError):
+            print("Entrada inválida. Certifique-se de seguir o formato correto.")
+
+def jogada_jogador_2(tabuleiro_jogador):
+    while True:
+        try:
+            tabuleiro_jogador.exibir_tabuleiro_oculto()
+            jogada = input("Jogador 2, digite a posição para atacar (letra/número): ").lower()
+            linha = int(jogada[1:]) - 1
+            coluna = ord(jogada[0].upper()) - ord('A')
+
+            if tabuleiro_jogador.acertou_ou_errou(linha, coluna):
+                break
+        except (ValueError, IndexError):
+            print("Por favor, digite uma posição válida.")
+            print("")
+            
+def rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_adversario):
+    while not (tabuleiro_jogador.verificar_fim_de_jogo() or tabuleiro_adversario.verificar_fim_de_jogo()):
+        # Jogada do jogador 1
+        jogada_jogador(tabuleiro_adversario)
+        
+        # Verificar se o jogador 1 venceu após sua jogada
+        if tabuleiro_adversario.verificar_fim_de_jogo():
+            print("Parabéns! Jogador 1 derrubou todos os navios do adversário!")
+            break
+
+        # Jogada do jogador 2
+        if tipo_de_jogo == '1':
+            # Se o adversário for o computador (modo 1 jogador)
+            jogada_computador(tabuleiro_jogador)
+        if tipo_de_jogo == '2':
+            # Se o adversário for um Tabuleiro (modo 2 jogadores)
+            jogada_jogador_2(tabuleiro_jogador)
+            
+
+        # Verificar se o jogador 2 venceu após sua jogada
+        if tabuleiro_jogador.verificar_fim_de_jogo():
+            if isinstance(tabuleiro_adversario, Tabuleiro):
+                print("Parabéns! Jogador 2 derrubou todos os navios do adversário!")
+            else:
+                print("Você perdeu! O computador afundou todos os seus navios.")
+            break
+
+    print("Fim da partida.")
+
+    
+   
+##################################################
+
+def play_battleship():
+    print("Bem-vindo ao jogo Batalha Naval!")
+    print("")
+    
+    print("Como deseja jogar?")
+    tipo_de_jogo = input("Um Jogador (1) | Dois Jogadores (2): ")
+
+    # PREPARAÇÃO
+    navios_predefinidos = [(3, 1), (4, 1), (5, 1)]
+    tabuleiro_jogador = Tabuleiro()
+    tabuleiro_jogador_2 = Tabuleiro()
+    tabuleiro_computador = Tabuleiro()
+    
+    if tipo_de_jogo == '1':
+        criacao_tabuleiro_jogador(tabuleiro_jogador, navios_predefinidos)
+        criacao_tabuleiro_computador(tabuleiro_computador, navios_predefinidos)
+        # Iniciar a rodada de jogo para 1 jogador
+        rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_computador)
+    elif tipo_de_jogo == '2':
+        criacao_tabuleiro_jogador(tabuleiro_jogador, navios_predefinidos)
+        criacao_tabuleiro_jogador(tabuleiro_jogador_2, navios_predefinidos)
+         # Iniciar a rodada de jogo para 2 jogadores
+        rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_jogador_2)
+
+'''
     # JOGO
     while not (tabuleiro_jogador.verificar_fim_de_jogo() or tabuleiro_computador.verificar_fim_de_jogo()):
         # Jogada do jogador
@@ -294,6 +372,7 @@ def play_battleship():
         if tabuleiro_jogador.verificar_fim_de_jogo():
             print("Você perdeu! O computador afundou todos os seus navios.")
             break
+'''
 
 ##################################################
 
