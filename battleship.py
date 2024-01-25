@@ -1,4 +1,5 @@
 import random
+import os
 
 class Tabuleiro:
     def __init__(self):
@@ -256,16 +257,18 @@ def criacao_tabuleiro_computador(tabuleiro_computador, navios_predefinidos):
     print("O computador já posicionou os navios.")
     print("")
 
+##################################################
 
-def jogada_jogador(tabuleiro_jogador):
-    tabuleiro_jogador.exibir_tabuleiro_oculto()
+def jogada_jogador(tabuleiro_adversario):
+    print("Vez do jogador 1")
+    tabuleiro_adversario.exibir_tabuleiro_oculto()
     while True:
         try:
             jogada = input("Digite a posição para atacar (letra/número): ").lower()
             linha = int(jogada[1:]) - 1
             coluna = ord(jogada[0].upper()) - ord('A')
 
-            if tabuleiro_jogador.acertou_ou_errou(linha, coluna):
+            if tabuleiro_adversario.acertou_ou_errou(linha, coluna):
                 break
             else:
                 print("Posição inválida. Tente novamente.")
@@ -274,9 +277,10 @@ def jogada_jogador(tabuleiro_jogador):
 
 def jogada_jogador_2(tabuleiro_jogador):
     while True:
+        print("Vez do jogador 2")
+        tabuleiro_jogador.exibir_tabuleiro_oculto()
         try:
-            tabuleiro_jogador.exibir_tabuleiro_oculto()
-            jogada = input("Jogador 2, digite a posição para atacar (letra/número): ").lower()
+            jogada = input("Digite a posição para atacar (letra/número): ").lower()
             linha = int(jogada[1:]) - 1
             coluna = ord(jogada[0].upper()) - ord('A')
 
@@ -300,11 +304,11 @@ def rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_adversario):
         if tipo_de_jogo == '1':
             # Se o adversário for o computador (modo 1 jogador)
             jogada_computador(tabuleiro_jogador)
+            tabuleiro_jogador.exibir_tabuleiro()
         if tipo_de_jogo == '2':
             # Se o adversário for um Tabuleiro (modo 2 jogadores)
             jogada_jogador_2(tabuleiro_jogador)
             
-
         # Verificar se o jogador 2 venceu após sua jogada
         if tabuleiro_jogador.verificar_fim_de_jogo():
             if isinstance(tabuleiro_adversario, Tabuleiro):
@@ -315,7 +319,6 @@ def rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_adversario):
 
     print("Fim da partida.")
 
-    
    
 ##################################################
 
@@ -333,46 +336,19 @@ def play_battleship():
     tabuleiro_computador = Tabuleiro()
     
     if tipo_de_jogo == '1':
+        tabuleiro_jogador.exibir_tabuleiro_oculto()
         criacao_tabuleiro_jogador(tabuleiro_jogador, navios_predefinidos)
         criacao_tabuleiro_computador(tabuleiro_computador, navios_predefinidos)
         # Iniciar a rodada de jogo para 1 jogador
         rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_computador)
     elif tipo_de_jogo == '2':
+        tabuleiro_jogador.exibir_tabuleiro_oculto()
         criacao_tabuleiro_jogador(tabuleiro_jogador, navios_predefinidos)
+        os.system('cls')
         criacao_tabuleiro_jogador(tabuleiro_jogador_2, navios_predefinidos)
+        os.system('cls')
          # Iniciar a rodada de jogo para 2 jogadores
         rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_jogador_2)
-
-'''
-    # JOGO
-    while not (tabuleiro_jogador.verificar_fim_de_jogo() or tabuleiro_computador.verificar_fim_de_jogo()):
-        # Jogada do jogador
-        tabuleiro_computador.exibir_erros_jogador = True
-        try:
-            tabuleiro_computador.exibir_tabuleiro_oculto()  # Exibir o tabuleiro oculto
-            jogada_jogador = input("Digite a posição para atacar (letra/número): ").lower()
-            linha_jogador = int(jogada_jogador[1:]) - 1
-            coluna_jogador = ord(jogada_jogador[0].upper()) - ord('A')
-            tabuleiro_computador.acertou_ou_errou(linha_jogador, coluna_jogador)
-        except (ValueError, IndexError):
-            print("Por favor, digite uma posição válida.")
-            print("")
-
-        # Verificar se o jogador venceu após sua jogada
-        if tabuleiro_computador.verificar_fim_de_jogo():
-            print("Parabéns! Você derrubou todos os navios do computador!")
-            break
-
-        # Jogada do computador
-        tabuleiro_computador.exibir_erros_jogador = False
-        jogada_computador(tabuleiro_jogador)
-        tabuleiro_jogador.exibir_tabuleiro()
-        
-        # Verificar se o jogador venceu após sua jogada
-        if tabuleiro_jogador.verificar_fim_de_jogo():
-            print("Você perdeu! O computador afundou todos os seus navios.")
-            break
-'''
 
 ##################################################
 
