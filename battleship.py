@@ -126,6 +126,7 @@ class Tabuleiro:
     def verificar_fim_de_jogo(self):
         return not bool(self.navios)
 
+##################################################
 
 def jogada_computador(tabuleiro_jogador):
     if len(tabuleiro_jogador.memoria) == 1:
@@ -259,8 +260,8 @@ def criacao_tabuleiro_computador(tabuleiro_computador, navios_predefinidos):
 
 ##################################################
 
-def jogada_jogador(tabuleiro_adversario):
-    print("Vez do jogador 1")
+def jogada_jogador(tabuleiro_adversario, nome_jogador):
+    print("Vez do jogador ", nome_jogador)
     tabuleiro_adversario.exibir_tabuleiro_oculto()
     while True:
         try:
@@ -272,28 +273,17 @@ def jogada_jogador(tabuleiro_adversario):
                 break
             else:
                 print("Posição inválida. Tente novamente.")
+                print("")
         except (ValueError, IndexError):
             print("Entrada inválida. Certifique-se de seguir o formato correto.")
-
-def jogada_jogador_2(tabuleiro_jogador):
-    while True:
-        print("Vez do jogador 2")
-        tabuleiro_jogador.exibir_tabuleiro_oculto()
-        try:
-            jogada = input("Digite a posição para atacar (letra/número): ").lower()
-            linha = int(jogada[1:]) - 1
-            coluna = ord(jogada[0].upper()) - ord('A')
-
-            if tabuleiro_jogador.acertou_ou_errou(linha, coluna):
-                break
-        except (ValueError, IndexError):
-            print("Por favor, digite uma posição válida.")
             print("")
+            
             
 def rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_adversario):
     while not (tabuleiro_jogador.verificar_fim_de_jogo() or tabuleiro_adversario.verificar_fim_de_jogo()):
         # Jogada do jogador 1
-        jogada_jogador(tabuleiro_adversario)
+        nome_jogador = "jogador 1"
+        jogada_jogador(tabuleiro_adversario, nome_jogador)
         
         # Verificar se o jogador 1 venceu após sua jogada
         if tabuleiro_adversario.verificar_fim_de_jogo():
@@ -307,7 +297,8 @@ def rodada_jogo(tipo_de_jogo, tabuleiro_jogador, tabuleiro_adversario):
             tabuleiro_jogador.exibir_tabuleiro()
         if tipo_de_jogo == '2':
             # Se o adversário for um Tabuleiro (modo 2 jogadores)
-            jogada_jogador_2(tabuleiro_jogador)
+            nome_jogador = "jogador 2"
+            jogada_jogador(tabuleiro_jogador, nome_jogador)
             
         # Verificar se o jogador 2 venceu após sua jogada
         if tabuleiro_jogador.verificar_fim_de_jogo():
