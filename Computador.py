@@ -1,4 +1,4 @@
-from battleship import *
+from Battleship import *
 import random
 
 class Computador:
@@ -61,26 +61,30 @@ class Computador:
         coluna = int(coluna)
 
         if direcao == 'horizontal':
-            # Busca para frente
-            for i in range(coluna + 1, len(tabuleiro_jogador.tabuleiro[0])):
-                if tabuleiro_jogador.tabuleiro[linha][i] not in ['X', '*']:
-                    return i
-
-            # Busca para trás
-            for i in range(coluna - 1, -1, -1):
-                if tabuleiro_jogador.tabuleiro[linha][i] not in ['X', '*']:
-                    return i
+            # Verifica se há posições acertadas que são água
+            if tabuleiro_jogador.posicoes_acertadas_agua:
+                # Se houver, fazer a busca para trás
+                for i in range(coluna - 1, -1, -1):
+                    if tabuleiro_jogador.tabuleiro[linha][i] not in ['X', '*']:
+                        return i
+            else:
+                # Se não houver, fazer a busca para frente
+                for i in range(coluna + 1, len(tabuleiro_jogador.tabuleiro[0])):
+                    if tabuleiro_jogador.tabuleiro[linha][i] not in ['X', '*']:
+                        return i
 
         elif direcao == 'vertical':
-            # Busca para frente
-            for i in range(linha + 1, len(tabuleiro_jogador.tabuleiro)):
-                if tabuleiro_jogador.tabuleiro[i][coluna] not in ['X', '*']:
-                    return i
-
-            # Busca para trás
-            for i in range(linha - 1, -1, -1):
-                if tabuleiro_jogador.tabuleiro[i][coluna] not in ['X', '*']:
-                    return i
+            # Verifica se há posições acertadas que são água
+            if tabuleiro_jogador.posicoes_acertadas_agua:
+                # Se houver, fazer a busca para trás
+                for i in range(linha - 1, -1, -1):
+                    if tabuleiro_jogador.tabuleiro[i][coluna] not in ['X', '*']:
+                        return i
+            else:
+                # Se não houver, fazer a busca para frente
+                for i in range(linha + 1, len(tabuleiro_jogador.tabuleiro)):
+                    if tabuleiro_jogador.tabuleiro[i][coluna] not in ['X', '*']:
+                        return i
 
         # Se não encontrar, retornar a posição original
         return coluna if direcao == 'horizontal' else linha
@@ -95,8 +99,16 @@ class Computador:
         if linha1 == linha2:
             coluna_vazia = Computador.encontrar_proxima_posicao_vazia(tabuleiro_jogador, linha1, coluna1, direcao='horizontal')
             tabuleiro_jogador.acertou_ou_errou(linha1, coluna_vazia)
+            
+            # Verifica se a posição acertada é água
+            if tabuleiro_jogador.tabuleiro[linha1][coluna_vazia] == 'X':
+                tabuleiro_jogador.posicoes_acertadas_agua.append({'linha': linha1, 'coluna': coluna_vazia})
 
         # Verifica se as partes atingidas estão na mesma coluna
         elif coluna1 == coluna2:
             linha_vazia = Computador.encontrar_proxima_posicao_vazia(tabuleiro_jogador, linha1, coluna1, direcao='vertical')
             tabuleiro_jogador.acertou_ou_errou(linha_vazia, coluna1)
+            
+            # Verifica se a posição acertada é água
+            if tabuleiro_jogador.tabuleiro[linha_vazia][coluna1] == 'X':
+                tabuleiro_jogador.posicoes_acertadas_agua.append({'linha': linha_vazia, 'coluna': coluna1})

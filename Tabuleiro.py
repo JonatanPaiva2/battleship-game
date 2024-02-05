@@ -6,6 +6,7 @@ class Tabuleiro:
         self.tabuleiro_oculto = [['_' for _ in range(10)] for _ in range(10)]
         self.navios = []  # Lista para armazenar informações sobre os navios
         self.memoria = []  # Memória para armazenar partes atingidas pelo computador
+        self.posicoes_acertadas_agua = [] # Memória para armazenar se o computador deve mudar de direção
         self.exibir_erros_jogador = True  # Flag para exibir mensagens de erro para o jogador
 
     def exibir_tabuleiro(self):
@@ -120,6 +121,7 @@ class Tabuleiro:
                     print("")
                     self.navios.remove(navio)
                     self.memoria = []
+                    self.posicoes_acertadas_agua = []
                     break
 
     def verificar_fim_de_jogo(self):
