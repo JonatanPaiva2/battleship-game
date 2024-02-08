@@ -102,7 +102,10 @@ class Computador:
             
             # Verifica se a posição acertada é água
             if tabuleiro_jogador.tabuleiro[linha1][coluna_vazia] == 'X':
-                tabuleiro_jogador.posicoes_acertadas_agua.append({'linha': linha1, 'coluna': coluna_vazia})
+                if tabuleiro_jogador.posicoes_acertadas_agua == True:
+                    tabuleiro_jogador.memoria = []
+                else:
+                    tabuleiro_jogador.posicoes_acertadas_agua = True
 
         # Verifica se as partes atingidas estão na mesma coluna
         elif coluna1 == coluna2:
@@ -111,4 +114,7 @@ class Computador:
             
             # Verifica se a posição acertada é água
             if tabuleiro_jogador.tabuleiro[linha_vazia][coluna1] == 'X':
-                tabuleiro_jogador.posicoes_acertadas_agua.append({'linha': linha_vazia, 'coluna': coluna1})
+                if tabuleiro_jogador.posicoes_acertadas_agua == True:
+                    tabuleiro_jogador.memoria = []
+                else:
+                    tabuleiro_jogador.posicoes_acertadas_agua = True
